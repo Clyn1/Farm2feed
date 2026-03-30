@@ -1,128 +1,171 @@
 // src/services/api.js
-// Simulated API calls using Axios-style interface
-// All calls return Promises with mock delays to mimic real network behavior
-
 import axios from 'axios'
-import { MOCK_PRODUCTS, AI_DISEASES } from './mockData.js'
 
-// We create an axios instance for demonstration.
-// In production, replace baseURL with your real backend.
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+
+// ─── Axios Instance ───────────────────────────────────────
 const api = axios.create({
-  baseURL: '/api', // Mocked — intercepted below
-  timeout: 10000,
+  baseURL: BASE_URL,
+  timeout: 15000,
+  headers: { 'Content-Type': 'application/json' },
 })
 
-// ─── AUTH ───────────────────────────────────────────────────────────────────
+// Attach JWT token to every request
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('f2f_token')
+    if (token) config.headers.Authorization = `Bearer ${token}`
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
-export const authService = {
-  login: async (email, password) => {
-    await delay(1200)
-    if (!email || !password) throw new Error('Please fill in all fields.')
-    // Simulate role detection from email
-    const role = email.toLowerCase().includes('farmer') ? 'farmer' : 'consumer'
-    return {
-      user: {
-        id: generateId(),
-        name: email.split('@')[0].replace(/[._]/g, ' '),
-        email,
-        role,
-        phone: '+254 712 000 000',
-        location: 'Nairobi',
-        joinedDate: new Date().toLocaleDateString('en-KE', { year: 'numeric', month: 'long' }),
-      },
-      token: 'mock-jwt-token-' + generateId(),
+// Handle 401 globally
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('f2f_token')
+      localStorage.removeItem('f2f_user')
+      window.location.href = '/login'
     }
+    return Promise.reject(error)
+  }
+)
+
+// ─── Error helper ─────────────────────────────────────────
+export const getErrorMessage = (error) =>
+  error.response?.data?.message || error.message || 'Something went wrong.'
+
+// ─── AUTH ─────────────────────────────────────────────────
+export const authService = {
+  register: async (name, email, password, role) => {
+    const { data } = await api.post('/auth/register', { name, email, password, role })
+    localStorage.setItem('f2f_token', data.token)
+    localStorage.setItem('f2f_user', JSON.stringify(data.user))
+    return data
   },
 
-  register: async (name, email, password, role) => {
-    await delay(1400)
-    if (!name || !email || !password) throw new Error('Please fill in all fields.')
-    if (password.length < 6) throw new Error('Password must be at least 6 characters.')
-    return {
-      user: { id: generateId(), name, email, role, phone: '', location: '', joinedDate: new Date().toLocaleDateString('en-KE', { year: 'numeric', month: 'long' }) },
-      token: 'mock-jwt-token-' + generateId(),
-    }
+  login: async (email, password) => {
+    const { data } = await api.post('/auth/login', { email, password })
+    localStorage.setItem('f2f_token', data.token)
+    localStorage.setItem('f2f_user', JSON.stringify(data.user))
+    return data
+  },
+
+  logout: () => {
+    localStorage.removeItem('f2f_token')
+    localStorage.removeItem('f2f_user')
+  },
+
+  getMe: async () => {
+    const { data } = await api.get('/auth/me')
+    return data
+  },
+
+  updateProfile: async (updates) => {
+    const { data } = await api.put('/auth/me', updates)
+    return data
   },
 }
 
-// ─── PRODUCTS ────────────────────────────────────────────────────────────────
-
+// ─── PRODUCTS ─────────────────────────────────────────────
 export const productService = {
-  getAll: async () => {
-    await delay(600)
-    return [...MOCK_PRODUCTS]
+  getAll: async ({ search = '', category = '', sort = '', page = 1, limit = 12 } = {}) => {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (category && category !== 'All') params.append('category', category)
+    if (sort) params.append('sort', sort)
+    params.append('page', page)
+    params.append('limit', limit)
+    const { data } = await api.get(`/products?${params.toString()}`)
+    return data
   },
 
   getById: async (id) => {
-    await delay(400)
-    const product = MOCK_PRODUCTS.find((p) => p.id === Number(id))
-    if (!product) throw new Error('Product not found.')
-    return product
+    const { data } = await api.get(`/products/${id}`)
+    return data.product
   },
 
-  create: async (productData) => {
-    await delay(1000)
-    return {
-      ...productData,
-      id: Date.now(),
-      rating: 0,
-      reviews: 0,
-      createdAt: new Date().toISOString(),
-    }
+  getMyProducts: async () => {
+    const { data } = await api.get('/products/my')
+    return data.products
+  },
+
+  create: async (formData) => {
+    const { data } = await api.post('/products', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data.product
+  },
+
+  update: async (id, formData) => {
+    const { data } = await api.put(`/products/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data.product
   },
 
   delete: async (id) => {
-    await delay(500)
-    return { success: true, id }
+    const { data } = await api.delete(`/products/${id}`)
+    return data
   },
 }
 
-// ─── AI / CROP DETECTION ─────────────────────────────────────────────────────
-
+// ─── AI CROP DETECTION ────────────────────────────────────
 export const aiService = {
   analyzeImage: async (imageFile) => {
-    // Simulate AI model inference time (2–3 seconds)
-    await delay(2200 + Math.random() * 800)
-    const result = AI_DISEASES[Math.floor(Math.random() * AI_DISEASES.length)]
-    return {
-      ...result,
-      analyzedAt: new Date().toLocaleTimeString(),
-      modelVersion: 'CropDetect v2.1',
-    }
+    const formData = new FormData()
+    formData.append('image', imageFile)
+    const { data } = await api.post('/crop/analyze', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    return data.result
+  },
+
+  getScanHistory: async () => {
+    const { data } = await api.get('/crop/history')
+    return data.scans
   },
 }
 
-// ─── PAYMENTS ────────────────────────────────────────────────────────────────
-
+// ─── PAYMENTS ─────────────────────────────────────────────
 export const paymentService = {
-  initiateStkPush: async (phone, amount, productName) => {
-    // Simulate STK push delay
-    await delay(2500)
-    const success = Math.random() > 0.2 // 80% success rate
+  initiateStkPush: async (productId, phone, quantity = 1) => {
+    const { data } = await api.post('/payments/stk-push', { productId, phone, quantity })
+    return data
+  },
 
-    if (!success) {
-      throw new Error('Payment request declined. Check your M-Pesa balance and try again.')
-    }
+  checkStatus: async (orderId) => {
+    const { data } = await api.get(`/payments/status/${orderId}`)
+    return data.order
+  },
 
-    return {
-      transactionId: 'MPE' + Date.now().toString().slice(-8).toUpperCase(),
-      phone,
-      amount,
-      product: productName,
-      status: 'COMPLETED',
-      timestamp: new Date().toLocaleString('en-KE'),
+  pollUntilComplete: async (orderId, onStatusUpdate) => {
+    const MAX_ATTEMPTS = 12
+    const INTERVAL_MS = 5000
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, INTERVAL_MS))
+      const order = await paymentService.checkStatus(orderId)
+      onStatusUpdate && onStatusUpdate(order.status)
+      if (order.status === 'paid')   return { success: true, order }
+      if (order.status === 'failed') return { success: false, order }
     }
+    return { success: false, order: null, timedOut: true }
+  },
+
+  getMyOrders: async () => {
+    const { data } = await api.get('/payments/orders')
+    return data.orders
   },
 }
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-function generateId() {
-  return Math.random().toString(36).slice(2, 10)
+// ─── Image URL helper ─────────────────────────────────────
+export const getImageUrl = (filename, type = 'products') => {
+  if (!filename) return null
+  if (filename.startsWith('http')) return filename
+  const base = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'
+  return `${base}/uploads/${type}/${filename}`
 }
 
 export default api

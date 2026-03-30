@@ -1,17 +1,26 @@
 // src/components/PaymentModal.jsx
 import { useState } from 'react'
-import { paymentService } from '../services/api.js'
+import { useNavigate } from 'react-router-dom'
+import { paymentService, getErrorMessage } from '../services/api.js'
 import { useToast } from '../context/ToastContext.jsx'
 import Spinner from './Spinner.jsx'
 
-const STEPS = { FORM: 'form', PROCESSING: 'processing', SUCCESS: 'success', FAILED: 'failed' }
+const STEPS = {
+  FORM:       'form',
+  PROCESSING: 'processing',
+  POLLING:    'polling',
+  SUCCESS:    'success',
+  FAILED:     'failed',
+}
 
 export default function PaymentModal({ product, onClose, onSuccess }) {
-  const [step, setStep] = useState(STEPS.FORM)
-  const [phone, setPhone] = useState('')
-  const [transaction, setTransaction] = useState(null)
-  const [errMsg, setErrMsg] = useState('')
+  const [step, setStep]         = useState(STEPS.FORM)
+  const [phone, setPhone]       = useState('')
+  const [errMsg, setErrMsg]     = useState('')
+  const [order, setOrder]       = useState(null)
+  const [pollStatus, setPollStatus] = useState('')
   const { showToast } = useToast()
+  const navigate = useNavigate()
 
   const handlePay = async () => {
     if (!phone || phone.replace(/\s/g, '').length < 10) {
@@ -20,21 +29,66 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
     }
     setErrMsg('')
     setStep(STEPS.PROCESSING)
+
     try {
-      const txn = await paymentService.initiateStkPush(phone, product.price, product.name)
-      setTransaction(txn)
-      setStep(STEPS.SUCCESS)
-      showToast('Payment received! 🎉', 'success')
-      onSuccess && onSuccess(txn)
-    } catch (err) {
+      // 1. Send STK Push to backend
+      const stkData = await paymentService.initiateStkPush(
+        product._id || product.id,
+        phone
+      )
+
+      // 2. Poll for payment confirmation
+      setStep(STEPS.POLLING)
+      setPollStatus('STK Push sent. Please enter your M-Pesa PIN...')
+
+      const result = await paymentService.pollUntilComplete(
+        stkData.orderId,
+        (status) => {
+          if (status === 'pending') setPollStatus('Waiting for payment confirmation...')
+        }
+      )
+
+      if (result.timedOut) {
+        setStep(STEPS.FAILED)
+        setErrMsg('Payment timed out. Please try again.')
+        showToast('Payment timed out.', 'error')
+        return
+      }
+
+      if (result.success) {
+        setOrder(result.order)
+        setStep(STEPS.SUCCESS)
+        showToast('Payment received! 🎉', 'success')
+        onSuccess && onSuccess(result.order)
+      } else {
+        setStep(STEPS.FAILED)
+        showToast('Payment failed. Please try again.', 'error')
+      }
+    } catch (error) {
       setStep(STEPS.FAILED)
-      showToast('Payment failed. Please try again.', 'error')
+      setErrMsg(getErrorMessage(error))
+      showToast(getErrorMessage(error), 'error')
     }
   }
 
-  // Prevent background clicks from closing during processing
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget && step !== STEPS.PROCESSING) onClose()
+    if (
+      e.target === e.currentTarget &&
+      step !== STEPS.PROCESSING &&
+      step !== STEPS.POLLING
+    ) {
+      onClose()
+    }
+  }
+
+  const handleTrackOrder = () => {
+    onClose()
+    navigate(`/orders/${order._id}`)
+  }
+
+  const handleViewAllOrders = () => {
+    onClose()
+    navigate('/my-orders')
   }
 
   return (
@@ -44,10 +98,9 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
     >
       <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl animate-scale-in overflow-hidden">
 
-        {/* FORM STEP */}
+        {/* ── FORM ── */}
         {step === STEPS.FORM && (
           <div>
-            {/* M-Pesa Header */}
             <div className="bg-[#00a651] px-5 py-4 flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl">📱</div>
               <div>
@@ -55,22 +108,21 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
                 <div className="text-white/80 text-xs">Safaricom Mobile Money</div>
               </div>
             </div>
-
             <div className="p-5">
               <h2 className="font-display text-xl text-gray-800 mb-1">Complete Payment</h2>
               <p className="text-gray-500 text-sm mb-4">
                 An STK push will be sent to your phone. Enter your M-Pesa PIN to confirm.
               </p>
 
-              {/* Amount display */}
+              {/* Amount */}
               <div className="bg-green-50 rounded-xl px-4 py-3 flex items-center justify-between mb-4 border border-green-100">
                 <div>
                   <p className="text-xs text-gray-500 font-medium">Amount to Pay</p>
                   <p className="text-xs text-gray-400 mt-0.5">For: {product.name}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-green-700 font-bold text-xl">KES {product.price.toLocaleString()}</p>
-                </div>
+                <p className="text-green-700 font-bold text-xl">
+                  KES {product.price?.toLocaleString()}
+                </p>
               </div>
 
               {/* Phone input */}
@@ -87,9 +139,13 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
                 {errMsg && <p className="text-red-500 text-xs mt-1.5">{errMsg}</p>}
               </div>
 
+              <div className="text-xs text-gray-400 mb-4">
+                Ensure your M-Pesa line has sufficient funds. You will receive a PIN prompt on your phone.
+              </div>
+
               <div className="flex gap-3">
                 <button onClick={handlePay} className="btn-primary flex-1">
-                  Pay KES {product.price.toLocaleString()}
+                  Pay KES {product.price?.toLocaleString()}
                 </button>
                 <button onClick={onClose} className="btn-ghost text-gray-500 px-3">
                   Cancel
@@ -99,17 +155,27 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
           </div>
         )}
 
-        {/* PROCESSING STEP */}
+        {/* ── PROCESSING ── */}
         {step === STEPS.PROCESSING && (
           <div className="p-8 text-center">
-            <div className="mb-6">
-              <Spinner size="lg" />
+            <div className="mb-6"><Spinner size="lg" /></div>
+            <h3 className="font-display text-xl text-gray-800 mb-2">Sending STK Push...</h3>
+            <p className="text-gray-500 text-sm">Connecting to M-Pesa. Please wait.</p>
+          </div>
+        )}
+
+        {/* ── POLLING ── */}
+        {step === STEPS.POLLING && (
+          <div className="p-8 text-center">
+            <div className="mb-6"><Spinner size="lg" /></div>
+            <h3 className="font-display text-xl text-gray-800 mb-2">Waiting for Payment...</h3>
+            <p className="text-gray-500 text-sm mb-4">{pollStatus}</p>
+            <div className="bg-green-50 rounded-xl p-3 border border-green-100">
+              <p className="text-xs text-green-700 font-medium">
+                📱 Check your phone for the M-Pesa PIN prompt and enter your PIN to complete payment.
+              </p>
             </div>
-            <h3 className="font-display text-xl text-gray-800 mb-2">Processing Payment...</h3>
-            <p className="text-gray-500 text-sm mb-4">
-              Check your phone for the M-Pesa PIN prompt.
-            </p>
-            <div className="flex justify-center gap-1.5">
+            <div className="flex justify-center gap-1.5 mt-5">
               {[0, 1, 2].map((i) => (
                 <div
                   key={i}
@@ -121,38 +187,58 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
           </div>
         )}
 
-        {/* SUCCESS STEP */}
+        {/* ── SUCCESS ── */}
         {step === STEPS.SUCCESS && (
           <div className="p-8 text-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-5 animate-scale-in">
               ✅
             </div>
             <h3 className="font-display text-2xl text-gray-800 mb-2">Payment Successful!</h3>
-            <p className="text-gray-500 text-sm mb-5">
-              Your payment of <strong>KES {product.price.toLocaleString()}</strong> for{' '}
-              <strong>{product.name}</strong> has been received.
+            <p className="text-gray-500 text-sm mb-4">
+              Your payment of <strong>KES {product.price?.toLocaleString()}</strong> for{' '}
+              <strong>{product.name}</strong> has been confirmed.
             </p>
 
-            {transaction && (
+            {order && (
               <div className="bg-green-50 border border-green-100 rounded-xl p-4 text-left mb-5">
                 <div className="grid grid-cols-2 gap-y-2 text-xs">
                   <span className="text-gray-500">Order Status</span>
                   <span className="font-semibold text-green-700 text-right">✓ Paid</span>
-                  <span className="text-gray-500">Reference</span>
-                  <span className="font-semibold text-gray-800 text-right">{transaction.transactionId}</span>
-                  <span className="text-gray-500">Time</span>
-                  <span className="font-semibold text-gray-800 text-right">{transaction.timestamp}</span>
+                  {order.payment?.mpesaReceiptNumber && (
+                    <>
+                      <span className="text-gray-500">M-Pesa Receipt</span>
+                      <span className="font-semibold text-gray-800 text-right">
+                        {order.payment.mpesaReceiptNumber}
+                      </span>
+                    </>
+                  )}
+                  <span className="text-gray-500">Amount</span>
+                  <span className="font-semibold text-gray-800 text-right">
+                    KES {order.totalAmount?.toLocaleString()}
+                  </span>
+                  <span className="text-gray-500">Order ID</span>
+                  <span className="font-semibold text-gray-800 text-right">
+                    #{order._id?.slice(-8).toUpperCase()}
+                  </span>
                 </div>
               </div>
             )}
 
-            <button onClick={onClose} className="btn-primary w-full">
-              Done
-            </button>
+            <div className="flex flex-col gap-2">
+              <button onClick={handleTrackOrder} className="btn-primary w-full">
+                🔍 Track My Order
+              </button>
+              <button onClick={handleViewAllOrders} className="btn-secondary w-full">
+                📋 View All Orders
+              </button>
+              <button onClick={onClose} className="btn-ghost w-full text-gray-400 text-sm">
+                Continue Shopping
+              </button>
+            </div>
           </div>
         )}
 
-        {/* FAILED STEP */}
+        {/* ── FAILED ── */}
         {step === STEPS.FAILED && (
           <div className="p-8 text-center">
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center text-4xl mx-auto mb-5 animate-scale-in">
@@ -160,10 +246,13 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
             </div>
             <h3 className="font-display text-2xl text-gray-800 mb-2">Payment Failed</h3>
             <p className="text-gray-500 text-sm mb-6">
-              We couldn't process your payment. Please check your M-Pesa balance and try again.
+              {errMsg || "We couldn't process your payment. Please check your M-Pesa balance and try again."}
             </p>
             <div className="flex gap-3">
-              <button onClick={() => setStep(STEPS.FORM)} className="btn-primary flex-1">
+              <button
+                onClick={() => { setStep(STEPS.FORM); setErrMsg('') }}
+                className="btn-primary flex-1"
+              >
                 Try Again
               </button>
               <button onClick={onClose} className="btn-secondary flex-1">
@@ -176,3 +265,4 @@ export default function PaymentModal({ product, onClose, onSuccess }) {
     </div>
   )
 }
+  

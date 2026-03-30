@@ -1,5 +1,6 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react'
+import { authService } from '../services/api.js'
 
 const AuthContext = createContext(null)
 
@@ -7,23 +8,32 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Persist user to sessionStorage for demo convenience
+  // On app load, restore user from localStorage if token exists
   useEffect(() => {
     try {
-      const stored = sessionStorage.getItem('f2f_user')
-      if (stored) setUser(JSON.parse(stored))
-    } catch (_) {}
-    setLoading(false)
+      const storedUser  = localStorage.getItem('f2f_user')
+      const storedToken = localStorage.getItem('f2f_token')
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser))
+      }
+    } catch (_) {
+      localStorage.removeItem('f2f_user')
+      localStorage.removeItem('f2f_token')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
+  // Called after successful login or register
   const login = (userData) => {
     setUser(userData)
-    sessionStorage.setItem('f2f_user', JSON.stringify(userData))
+    localStorage.setItem('f2f_user', JSON.stringify(userData))
   }
 
+  // Called on logout
   const logout = () => {
+    authService.logout() // clears localStorage
     setUser(null)
-    sessionStorage.removeItem('f2f_user')
   }
 
   return (
