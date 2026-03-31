@@ -25,16 +25,10 @@ export default function Navbar() {
         : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
     }`
 
-  // Role-based nav links
   const navLinks = [
-    { to: '/',        label: 'Home',      end: true },
-    { to: '/products',label: 'Products' },
+    { to: '/',         label: 'Home',      end: true },
+    { to: '/products', label: 'Products' },
     { to: dashboardPath, label: 'Dashboard' },
-    // Farmer-only: Market AI
-    ...(isLoggedIn && user.role === 'farmer'
-      ? [{ to: '/market-ai', label: '🤖 Market AI' }]
-      : []),
-    // Consumer-only: My Orders
     ...(isLoggedIn && user.role === 'consumer'
       ? [{ to: '/my-orders', label: 'My Orders' }]
       : []),
@@ -42,18 +36,19 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+
         {/* Brand */}
         <button
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 font-display text-xl font-bold text-green-700 hover:text-green-800 transition-colors"
+          className="flex items-center gap-2 font-display text-xl font-bold text-green-700 hover:text-green-800 transition-colors flex-shrink-0"
         >
           <span className="text-2xl">🌱</span>
-          Farm2Feed
+          <span className="hidden sm:block">Farm2Feed</span>
         </button>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-1 flex-1">
           {navLinks.map((link) => (
             <NavLink key={link.to} to={link.to} className={linkClass} end={link.end}>
               {link.label}
@@ -61,49 +56,65 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Auth section */}
-        <div className="hidden md:flex items-center gap-3">
-          {isLoggedIn ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-lg">
-                <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm font-medium text-green-800 max-w-[120px] truncate capitalize">
-                  {user.name}
-                </span>
-                <span className="text-xs bg-green-200 text-green-800 px-1.5 py-0.5 rounded-full font-semibold capitalize">
-                  {user.role}
-                </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="btn-ghost text-red-500 hover:text-red-700 hover:bg-red-50 text-sm"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button onClick={() => navigate('/login')} className="btn-ghost text-sm">
-                Sign In
-              </button>
-              <button onClick={() => navigate('/register')} className="btn-primary text-sm px-4 py-2">
-                Get Started
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Right side */}
+        <div className="flex items-center gap-2">
 
-        {/* Hamburger */}
-        <button
-          className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          <span className={`block w-5 h-0.5 bg-gray-700 transition-transform duration-200 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
-          <span className={`block w-5 h-0.5 bg-gray-700 transition-opacity duration-200 ${mobileOpen ? 'opacity-0' : ''}`} />
-          <span className={`block w-5 h-0.5 bg-gray-700 transition-transform duration-200 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-        </button>
+          {/* AI Market Button — visible to farmers only, top-right */}
+          {isLoggedIn && user.role === 'farmer' && (
+            <button
+              onClick={() => navigate('/market-ai')}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-600 to-green-500 text-white text-xs font-bold rounded-lg shadow-sm hover:from-green-700 hover:to-green-600 transition-all hover:shadow-md active:scale-95 flex-shrink-0"
+              title="AI Market Intelligence"
+            >
+              <span>🤖</span>
+              <span className="hidden sm:block">Market AI</span>
+            </button>
+          )}
+
+          {/* Auth section — desktop */}
+          <div className="hidden md:flex items-center gap-2">
+            {isLoggedIn ? (
+              <>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 rounded-lg">
+                  <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-sm font-medium text-green-800 max-w-[100px] truncate capitalize">
+                    {user.name}
+                  </span>
+                  <span className="text-xs bg-green-200 text-green-800 px-1.5 py-0.5 rounded-full font-semibold capitalize">
+                    {user.role}
+                  </span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-all"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => navigate('/login')} className="text-sm font-medium text-gray-600 hover:text-green-700 px-3 py-1.5 rounded-lg transition-all">
+                  Sign In
+                </button>
+                <button onClick={() => navigate('/register')} className="btn-primary text-sm px-4 py-2">
+                  Get Started
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Hamburger — mobile */}
+          <button
+            className="md:hidden flex flex-col gap-1.5 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-transform duration-200 ${mobileOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-opacity duration-200 ${mobileOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-gray-700 transition-transform duration-200 ${mobileOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -124,6 +135,17 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
+
+          {/* AI button in mobile menu for farmers */}
+          {isLoggedIn && user.role === 'farmer' && (
+            <button
+              onClick={() => { navigate('/market-ai'); setMobileOpen(false) }}
+              className="px-4 py-3 rounded-xl text-base font-medium text-left text-green-700 hover:bg-green-50 transition-all flex items-center gap-2"
+            >
+              🤖 Market AI
+            </button>
+          )}
+
           <div className="mt-2 pt-2 border-t border-gray-100">
             {isLoggedIn ? (
               <button
