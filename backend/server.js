@@ -10,13 +10,23 @@ connectDB()
 
 const app = express()
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://farm2feed.vercel.app',
+  'https://farm2feed-ayrpccllu-ochiengclyntono-6558s-projects.vercel.app',
+  process.env.FRONTEND_URL,
+].filter(Boolean)
+
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean),
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true)
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    return callback(null, true)
+  },
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }))
 
 app.use(express.json())
@@ -50,6 +60,6 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Farm2Feed API running on http://localhost:${PORT}`)
+  console.log(`🚀 Farm2Feed API running on port ${PORT}`)
   console.log(`📦 Environment: ${process.env.NODE_ENV}`)
 })
