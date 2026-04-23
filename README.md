@@ -1,118 +1,170 @@
-📌 Table of Contents
+# 🌱 Farm2Feed
 
-About the Project
-Problem Statement
-Solution
-Live URLs
-Features
-Tech Stack
-Project Structure
-Getting Started
-Environment Variables
-API Endpoints
-Database Models
-M-Pesa Integration
-AI Features
-Deployment
-Test Accounts
-Screenshots
-Team
+> **Connecting Kenyan Farmers Directly with Consumers — Powered by AI & M-Pesa**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-green?style=for-the-badge&logo=vercel)](https://farm2feed-ayrpccllu-ochiengclyntono-6558s-projects.vercel.app)
+[![Backend](https://img.shields.io/badge/Backend-Render-purple?style=for-the-badge&logo=render)](https://farm2feed.onrender.com/api/health)
+[![GitHub](https://img.shields.io/badge/GitHub-Clyn1%2FFarm2feed-black?style=for-the-badge&logo=github)](https://github.com/Clyn1/Farm2feed)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
-🌍 About the Project
-Farm2Feed is a full-stack web application built for Technovation Girls 2025 that connects Kenyan farmers directly with consumers. It eliminates exploitative middlemen who take 30–40% of farmers' income, integrates AI-powered crop disease detection and market intelligence, and uses Safaricom's M-Pesa Daraja API for real mobile payments sent directly to farmers' phones.
+---
 
-❗ Problem Statement
+## 📌 Table of Contents
+
+- [About the Project](#about-the-project)
+- [Problem Statement](#problem-statement)
+- [Solution](#solution)
+- [Live URLs](#live-urls)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Database Models](#database-models)
+- [M-Pesa Integration](#mpesa-integration)
+- [AI Features](#ai-features)
+- [Deployment](#deployment)
+- [Test Accounts](#test-accounts)
+- [Screenshots](#screenshots)
+- [Team](#team)
+
+---
+
+## 🌍 About the Project
+
+**Farm2Feed** is a full-stack web application built for **Technovation Girls 2025** that connects Kenyan farmers directly with consumers. It eliminates exploitative middlemen who take 30–40% of farmers' income, integrates AI-powered crop disease detection and market intelligence, and uses Safaricom's M-Pesa Daraja API for real mobile payments sent directly to farmers' phones.
+
+---
+
+## ❗ Problem Statement
+
 Kenyan smallholder farmers face three critical challenges:
 
-Middlemen take 30–40% of farm gate prices — farmers earn far less than their produce is worth
-Crop diseases destroy harvests because detection comes too late and treatment advice is inaccessible
-No market visibility — farmers don't know which crops are in demand or what prices to charge
+1. **Middlemen** take 30–40% of farm gate prices — farmers earn far less than their produce is worth
+2. **Crop diseases** destroy harvests because detection comes too late and treatment advice is inaccessible
+3. **No market visibility** — farmers don't know which crops are in demand or what prices to charge
 
 Meanwhile, urban consumers pay inflated prices for produce that has passed through multiple hands, reducing freshness.
 
-✅ Solution
+---
+
+## ✅ Solution
+
 Farm2Feed solves all three problems:
-ProblemSolutionMiddlemen stealing incomeDirect farmer-to-consumer marketplace with M-Pesa paymentsCrop disease lossesAI-powered crop disease detection with treatment adviceNo market knowledgeMarket Intelligence AI with demand prediction & price suggestions
 
-🌐 Live URLs
-ServiceURL🌍 Frontendhttps://farm2feed-ayrpccllu-ochiengclyntono-6558s-projects.vercel.app🚀 Backend APIhttps://farm2feed.onrender.com❤️ Health Checkhttps://farm2feed.onrender.com/api/health📦 GitHub Repohttps://github.com/Clyn1/Farm2feed
+| Problem | Solution |
+|---------|----------|
+| Middlemen stealing income | Direct farmer-to-consumer marketplace with M-Pesa payments |
+| Crop disease losses | AI-powered crop disease detection with treatment advice |
+| No market knowledge | Market Intelligence AI with demand prediction & price suggestions |
 
-✨ Features
-🔐 Authentication System
+---
 
-User registration and login with role selection
-Two roles: Farmer and Consumer
-Passwords hashed with bcrypt (12 salt rounds)
-JWT tokens for secure session management
-Role-based access control — each role sees different features
+## 🌐 Live URLs
 
-🧑‍🌾 Farmer Dashboard
+| Service | URL |
+|---------|-----|
+| 🌍 Frontend | https://farm2feed-ayrpccllu-ochiengclyntono-6558s-projects.vercel.app |
+| 🚀 Backend API | https://farm2feed.onrender.com |
+| ❤️ Health Check | https://farm2feed.onrender.com/api/health |
+| 📦 GitHub Repo | https://github.com/Clyn1/Farm2feed |
 
-Overview — stats: products listed, earnings, total orders
-Add Product — list produce with name, price, quantity, category, image upload
-Crop AI — upload crop photo for instant disease detection
-Orders — view all incoming orders and payment status
+---
 
-🛒 Consumer Marketplace
+## ✨ Features
 
-Browse all products in a responsive grid layout
-Search by product name, farmer name, or location
-Filter by category: Vegetables, Fruits, Grains, Poultry, Dairy, Others
-Sort by price (low/high) or rating
-Pagination (12 products per page)
+### 🔐 Authentication System
+- User registration and login with role selection
+- Two roles: **Farmer** and **Consumer**
+- Passwords hashed with **bcrypt** (12 salt rounds)
+- **JWT tokens** for secure session management
+- Role-based access control — each role sees different features
 
-🤖 AI Crop Disease Detection
+### 🧑‍🌾 Farmer Dashboard
+- **Overview** — stats: products listed, earnings, total orders
+- **Add Product** — list produce with name, price, quantity, category, image upload
+- **Crop AI** — upload crop photo for instant disease detection
+- **Orders** — view all incoming orders and payment status
 
-Upload any crop photo
-AI returns:
+### 🛒 Consumer Marketplace
+- Browse all products in a responsive grid layout
+- Search by product name, farmer name, or location
+- Filter by category: Vegetables, Fruits, Grains, Poultry, Dairy, Others
+- Sort by price (low/high) or rating
+- Pagination (12 products per page)
 
-Disease name (e.g. Early Blight, Leaf Rust, Powdery Mildew)
-Confidence percentage (0–100%)
-Severity level (None / Low / Moderate / High)
-Detailed treatment recommendations
+### 🤖 AI Crop Disease Detection
+- Upload any crop photo
+- AI returns:
+  - Disease name (e.g. Early Blight, Leaf Rust, Powdery Mildew)
+  - Confidence percentage (0–100%)
+  - Severity level (None / Low / Moderate / High)
+  - Detailed treatment recommendations
+- Scan history saved to database
 
+### 📈 Market Intelligence AI
+- Live demand scores for 8 major Kenyan crops
+- AI-suggested selling prices based on market trends
+- 7-day price forecast bar charts
+- Competition analysis
+- Best time to sell recommendations
+- 7 personalized farming tips
 
-Scan history saved to database
+### 💳 M-Pesa Daraja API Payments
+- Real STK Push integration with Safaricom
+- Consumer enters phone number → receives PIN prompt on phone
+- Backend polls payment status automatically
+- M-Pesa receipt number stored with order
+- Payment flow: Pending → Paid / Failed
 
-📈 Market Intelligence AI
+### 📦 Order Tracking
+- 4-stage order progress tracker:
+  - Order Placed → Payment Confirmed → Being Prepared → Delivered
+- M-Pesa receipt number displayed
+- Direct call-to-farmer button
+- Full order history with filter tabs
 
-Live demand scores for 8 major Kenyan crops
-AI-suggested selling prices based on market trends
-7-day price forecast bar charts
-Competition analysis
-Best time to sell recommendations
-7 personalized farming tips
+---
 
-💳 M-Pesa Daraja API Payments
+## 🛠 Tech Stack
 
-Real STK Push integration with Safaricom
-Consumer enters phone number → receives PIN prompt on phone
-Backend polls payment status automatically
-M-Pesa receipt number stored with order
-Payment flow: Pending → Paid / Failed
+### Frontend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 18.2.0 | UI Framework |
+| Vite | 5.1.0 | Build Tool |
+| React Router DOM | 6.22.1 | Client-side Routing |
+| Tailwind CSS | 3.4.1 | Styling |
+| Axios | 1.6.7 | HTTP Client |
+| React Context API | Built-in | State Management |
 
-📦 Order Tracking
+### Backend
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Node.js | 20.x | Runtime |
+| Express | 4.18.3 | Web Framework |
+| MongoDB | 8.0 | Database |
+| Mongoose | 8.2.1 | ODM |
+| bcryptjs | 2.4.3 | Password Hashing |
+| jsonwebtoken | 9.0.2 | Authentication |
+| Multer | 1.4.5 | File Uploads |
+| Axios | 1.6.7 | M-Pesa API calls |
+| Morgan | 1.10.0 | HTTP Logging |
+| Nodemon | 3.1.0 | Dev Server |
 
-4-stage order progress tracker:
+### Deployment
+| Service | Purpose |
+|---------|---------|
+| Vercel | Frontend hosting |
+| Railway | Backend hosting + MongoDB |
+| GitHub | Version control |
 
-Order Placed → Payment Confirmed → Being Prepared → Delivered
+---
 
+## 📁 Project Structure
 
-M-Pesa receipt number displayed
-Direct call-to-farmer button
-Full order history with filter tabs
-
-
-🛠 Tech Stack
-Frontend
-TechnologyVersionPurposeReact18.2.0UI FrameworkVite5.1.0Build ToolReact Router DOM6.22.1Client-side RoutingTailwind CSS3.4.1StylingAxios1.6.7HTTP ClientReact Context APIBuilt-inState Management
-Backend
-TechnologyVersionPurposeNode.js20.xRuntimeExpress4.18.3Web FrameworkMongoDB8.0DatabaseMongoose8.2.1ODMbcryptjs2.4.3Password Hashingjsonwebtoken9.0.2AuthenticationMulter1.4.5File UploadsAxios1.6.7M-Pesa API callsMorgan1.10.0HTTP LoggingNodemon3.1.0Dev Server
-Deployment
-ServicePurposeVercelFrontend hostingRailwayBackend hosting + MongoDBGitHubVersion control
-
-📁 Project Structure
+```
 farm2feed/
 ├── frontend/                          # React + Vite application
 │   ├── public/
@@ -178,40 +230,74 @@ farm2feed/
     │   ├── auth.js                    # JWT verification
     │   └── errorHandler.js            # Global error handler
     └── package.json
+```
 
-🚀 Getting Started
-Prerequisites
+---
 
-Node.js 18+
-npm or yarn
-MongoDB (local) or MongoDB Atlas account
+## 🚀 Getting Started
 
-1. Clone the Repository
-bashgit clone https://github.com/Clyn1/Farm2feed.git
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+- MongoDB (local) or MongoDB Atlas account
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Clyn1/Farm2feed.git
 cd Farm2feed
-2. Setup Backend
-bashcd backend
+```
+
+### 2. Setup Backend
+
+```bash
+cd backend
 npm install
 cp .env.example .env
 # Edit .env with your values
 npm run dev
-3. Setup Frontend
-bashcd frontend
+```
+
+### 3. Setup Frontend
+
+```bash
+cd frontend
 npm install
-Create frontend/.env:
-envVITE_API_URL=http://localhost:5000/api
-bashnpm run dev
-4. Seed the Database
-bashcd backend
+```
+
+Create `frontend/.env`:
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+```bash
+npm run dev
+```
+
+### 4. Seed the Database
+
+```bash
+cd backend
 node seed.js
+```
+
 This creates 6 farmer accounts, 1 consumer account, and 16 products.
-5. Open the App
+
+### 5. Open the App
+
+```
 Frontend: http://localhost:5173
 Backend:  http://localhost:5000/api/health
+```
 
-⚙️ Environment Variables
-Backend .env
-env# Server
+---
+
+## ⚙️ Environment Variables
+
+### Backend `.env`
+
+```env
+# Server
 PORT=5000
 NODE_ENV=development
 
@@ -232,24 +318,62 @@ MPESA_BASE_URL=https://sandbox.safaricom.co.ke
 
 # Frontend URL (for CORS)
 FRONTEND_URL=http://localhost:5173
-Frontend .env
-envVITE_API_URL=http://localhost:5000/api
+```
 
-📡 API Endpoints
-Authentication
-MethodEndpointDescriptionAccessPOST/api/auth/registerRegister new userPublicPOST/api/auth/loginLogin userPublicGET/api/auth/meGet current userJWTPUT/api/auth/meUpdate profileJWT
-Products
-MethodEndpointDescriptionAccessGET/api/productsGet all productsPublicGET/api/products/:idGet single productPublicGET/api/products/myGet my productsFarmerPOST/api/productsCreate productFarmerPUT/api/products/:idUpdate productFarmerDELETE/api/products/:idDelete productFarmer
-AI Crop Detection
-MethodEndpointDescriptionAccessPOST/api/crop/analyzeAnalyze crop imageFarmerGET/api/crop/historyGet scan historyFarmer
-Payments (M-Pesa)
-MethodEndpointDescriptionAccessPOST/api/payments/stk-pushInitiate paymentConsumerPOST/api/payments/callbackM-Pesa callbackPublicGET/api/payments/status/:idCheck statusJWTGET/api/payments/ordersGet my ordersJWT
-Health
-MethodEndpointDescriptionGET/api/healthServer health check
+### Frontend `.env`
 
-🗄️ Database Models
-User
-javascript{
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+---
+
+## 📡 API Endpoints
+
+### Authentication
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/auth/register` | Register new user | Public |
+| POST | `/api/auth/login` | Login user | Public |
+| GET | `/api/auth/me` | Get current user | JWT |
+| PUT | `/api/auth/me` | Update profile | JWT |
+
+### Products
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | `/api/products` | Get all products | Public |
+| GET | `/api/products/:id` | Get single product | Public |
+| GET | `/api/products/my` | Get my products | Farmer |
+| POST | `/api/products` | Create product | Farmer |
+| PUT | `/api/products/:id` | Update product | Farmer |
+| DELETE | `/api/products/:id` | Delete product | Farmer |
+
+### AI Crop Detection
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/crop/analyze` | Analyze crop image | Farmer |
+| GET | `/api/crop/history` | Get scan history | Farmer |
+
+### Payments (M-Pesa)
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| POST | `/api/payments/stk-push` | Initiate payment | Consumer |
+| POST | `/api/payments/callback` | M-Pesa callback | Public |
+| GET | `/api/payments/status/:id` | Check status | JWT |
+| GET | `/api/payments/orders` | Get my orders | JWT |
+
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Server health check |
+
+---
+
+## 🗄️ Database Models
+
+### User
+```javascript
+{
   name: String,
   email: String (unique),
   password: String (bcrypt hashed),
@@ -258,8 +382,11 @@ javascript{
   location: String,
   createdAt: Date
 }
-Product
-javascript{
+```
+
+### Product
+```javascript
+{
   name: String,
   description: String,
   price: Number,
@@ -273,8 +400,11 @@ javascript{
   rating: Number,
   isAvailable: Boolean
 }
-Order
-javascript{
+```
+
+### Order
+```javascript
+{
   consumer: ObjectId (ref: User),
   product: ObjectId (ref: Product),
   farmer: ObjectId (ref: User),
@@ -289,8 +419,11 @@ javascript{
     paidAt: Date
   }
 }
-CropScan
-javascript{
+```
+
+### CropScan
+```javascript
+{
   farmer: ObjectId (ref: User),
   image: String,
   result: {
@@ -301,10 +434,16 @@ javascript{
     modelVersion: String
   }
 }
+```
 
-📱 M-Pesa Integration
-Farm2Feed uses the Safaricom Daraja API for real STK Push payments.
-Payment Flow
+---
+
+## 📱 M-Pesa Integration
+
+Farm2Feed uses the **Safaricom Daraja API** for real STK Push payments.
+
+### Payment Flow
+```
 1. Consumer clicks "Buy Now"
 2. Frontend sends { productId, phone } to backend
 3. Backend generates OAuth token from Daraja API
@@ -315,97 +454,136 @@ Payment Flow
 8. Backend updates order status to "paid"
 9. Frontend polls status → shows success + receipt
 10. Farmer receives money directly in M-Pesa wallet
-Getting Daraja Credentials
+```
 
-Go to developer.safaricom.co.ke
-Create account → Create App
-Enable Lipa Na M-Pesa Sandbox
-Copy Consumer Key and Consumer Secret
-For production: apply for Go-Live approval
+### Getting Daraja Credentials
+1. Go to [developer.safaricom.co.ke](https://developer.safaricom.co.ke)
+2. Create account → Create App
+3. Enable **Lipa Na M-Pesa Sandbox**
+4. Copy Consumer Key and Consumer Secret
+5. For production: apply for Go-Live approval
 
+---
 
-🤖 AI Features
-Crop Disease Detection
+## 🤖 AI Features
+
+### Crop Disease Detection
 The AI analyzes crop images and detects:
+- Early Blight (Alternaria solani)
+- Leaf Rust (Puccinia triticina)
+- Powdery Mildew
+- Bacterial Wilt
+- Cassava Mosaic Virus
+- Healthy plants (no disease)
 
-Early Blight (Alternaria solani)
-Leaf Rust (Puccinia triticina)
-Powdery Mildew
-Bacterial Wilt
-Cassava Mosaic Virus
-Healthy plants (no disease)
+> **Note:** Current implementation uses a structured response engine. The architecture is designed to be swapped with a real ML model (TensorFlow, PyTorch, or Google Vision API) by replacing the `analyzeWithAI()` function in `cropController.js`.
 
-
-Note: Current implementation uses a structured response engine. The architecture is designed to be swapped with a real ML model (TensorFlow, PyTorch, or Google Vision API) by replacing the analyzeWithAI() function in cropController.js.
-
-Market Intelligence AI
+### Market Intelligence AI
 Provides analysis for 8 major Kenyan crops:
-
-Tomatoes, Maize, Avocados, Sukuma Wiki
-Potatoes, Mangoes, Eggs, Beans
+- Tomatoes, Maize, Avocados, Sukuma Wiki
+- Potatoes, Mangoes, Eggs, Beans
 
 Each analysis includes demand score, price forecast, market insight, competition level, and farming tips.
 
-🚀 Deployment
-Frontend → Vercel
-bash# In Vercel dashboard:
+---
+
+## 🚀 Deployment
+
+### Frontend → Vercel
+```bash
+# In Vercel dashboard:
 # Root Directory: frontend
 # Build Command: npm run build
 # Output Directory: dist
 # Environment Variable: VITE_API_URL=https://your-backend.onrender.com/api
-Backend → Railway
-bash# In Railway dashboard:
+```
+
+### Backend → Railway
+```bash
+# In Railway dashboard:
 # Root Directory: backend
 # Start Command: node server.js
 # Add all environment variables from .env
-Database → Railway MongoDB
+```
+
+### Database → Railway MongoDB
 Railway provides a built-in MongoDB service.
-Copy the MONGO_URL from Railway MongoDB service → paste as MONGO_URI in backend variables.
+Copy the `MONGO_URL` from Railway MongoDB service → paste as `MONGO_URI` in backend variables.
 
-🔑 Test Accounts
-After running node seed.js:
-RoleEmailPasswordFarmerjohn@farm.com123456Farmermary@farm.com123456Farmerpeter@farm.com123456Consumeralice@test.com123456
+---
 
-🔒 Security
+## 🔑 Test Accounts
 
-Passwords hashed with bcrypt (12 salt rounds)
-JWT tokens with 7-day expiry
-Role-based route protection
-Mongoose schema validation
-CORS whitelist protection
-Multer file type and size validation
-Environment variables for all secrets
-Global error handler prevents stack trace leaks
+After running `node seed.js`:
 
+| Role | Email | Password |
+|------|-------|----------|
+| Farmer | john@farm.com | 123456 |
+| Farmer | mary@farm.com | 123456 |
+| Farmer | peter@farm.com | 123456 |
+| Consumer | alice@test.com | 123456 |
 
-🤝 Contributing
+---
 
-Fork the repository
-Create your feature branch (git checkout -b feature/AmazingFeature)
-Commit your changes (git commit -m 'Add AmazingFeature')
-Push to the branch (git push origin feature/AmazingFeature)
-Open a Pull Request
+## 🔒 Security
 
+- Passwords hashed with **bcrypt** (12 salt rounds)
+- **JWT** tokens with 7-day expiry
+- Role-based route protection
+- Mongoose schema validation
+- CORS whitelist protection
+- Multer file type and size validation
+- Environment variables for all secrets
+- Global error handler prevents stack trace leaks
 
-📄 License
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
 This project is licensed under the MIT License.
 
-👥 Team
-NexTech — Technovation Girls 2025
-RoleResponsibilityFull-Stack DeveloperReact, Node.js, MongoDB, M-Pesa APIAI IntegrationCrop detection, Market intelligenceUI/UX DesignTailwind CSS, Mobile-first designBusiness StrategyMarket research, Business canvas
+---
 
-🙏 Acknowledgements
+## 👥 Team
 
-Safaricom Daraja API — M-Pesa integration
-KALRO — Agricultural disease data
-MongoDB Atlas — Database hosting
-Vercel — Frontend deployment
-Railway — Backend deployment
-Technovation Girls — Program inspiration
+**NexTech** — Technovation Girls 2025
 
+| Role | Responsibility |
+|------|---------------|
+| Full-Stack Developer | React, Node.js, MongoDB, M-Pesa API |
+| AI Integration | Crop detection, Market intelligence |
+| UI/UX Design | Tailwind CSS, Mobile-first design |
+| Business Strategy | Market research, Business canvas |
+
+---
+
+## 🙏 Acknowledgements
+
+- [Safaricom Daraja API](https://developer.safaricom.co.ke) — M-Pesa integration
+- [KALRO](https://www.kalro.org) — Agricultural disease data
+- [MongoDB Atlas](https://www.mongodb.com/atlas) — Database hosting
+- [Vercel](https://vercel.com) — Frontend deployment
+- [Railway](https://railway.app) — Backend deployment
+- [Technovation Girls](https://technovationchallenge.org) — Program inspiration
+
+---
 
 <div align="center">
-🌱 Farm2Feed — Farm Fresh, Delivered to You
+
+**🌱 Farm2Feed — Farm Fresh, Delivered to You**
+
 Made with ❤️ for Kenyan farmers
-Live Demo · Report Bug · Request Feature
+
+[Live Demo](https://farm2feed-ayrpccllu-ochiengclyntono-6558s-projects.vercel.app) · [Report Bug](https://github.com/Clyn1/Farm2feed/issues) · [Request Feature](https://github.com/Clyn1/Farm2feed/issues)
+
 </div>
